@@ -1,0 +1,87 @@
+{% extends "base/base.html" %}
+
+{% block start %}
+
+<div class="container">
+
+    <div class="row">
+        <main class="col-md-9">
+            <div class="card">
+
+                <table class="table table-borderless table-shopping-cart">
+                    <thead class="text-muted">
+                        <tr class="small text-uppercase">
+                            <th scope="col">Product</th>
+                            <th scope="col" width="120">Quantity</th>
+                            <th scope="col" width="120">Price</th>
+                            <th scope="col" class="text-right" width="200"> </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart.cart_items.all %}
+
+                        <tr>
+                            <td>
+                                <figure class="itemside">
+                                    <div class="aside"><img src="images/items/1.jpg" class="img-sm"></div>
+                                    <figcaption class="info">
+                                        <p class="title text-dark">{{ item.book.title }}</p>
+                                        <p class="text-muted small">{{ item.book.author }}</p>
+                                    </figcaption>
+                                </figure>
+                            </td>
+                            <td>
+                                <select class="form-control">
+                                    <option>{{ item.book.available_quantity }}</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                </select>
+                            </td>
+                            <td>
+                                <div class="price-wrap">
+                                    <var class="price">{{ item.book.price }}</var><br>
+                                    <small class="text-muted"> $315.20 each </small>
+                                </div> <!-- price-wrap .// -->
+                            </td>
+                            <td class="text-right">
+                                <a data-original-title="Save to Wishlist" title="" href="" class="btn btn-light"
+                                    data-toggle="tooltip"> <i class="fa fa-heart"></i></a>
+                                <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-light"> Remove</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+            </div> <!-- card.// -->
+
+            <div class="alert alert-success mt-3">
+                <p class="icontext"><i class="icon text-success fa fa-truck"></i> Free Delivery within 1-2 weeks
+                </p>
+            </div>
+
+        </main> <!-- col.// -->
+        <aside class="col-md-3">
+
+            <div class="card">
+                <div class="card-body">
+
+                    <dl class="dlist-align">
+                        <dd>Total:<strong> {{cart.cart_items.all.count}} Items</strong></dd>
+                        <dd class="text-right  h5">${{ cart.get_cart_total }}</dd>
+                    </dl>
+                    <dl class="dlist-align">
+                        <a href="#" class="btn btn-primary float-md-right"> Make Purchase <i
+                                class="fa fa-chevron-right"></i> </a>
+                    </dl>
+                    <hr>
+                </div> <!-- card-body.// -->
+            </div> <!-- card .// -->
+        </aside> <!-- col.// -->
+    </div>
+
+</div> <!-- container .//  -->
+
+{% endblock %}
