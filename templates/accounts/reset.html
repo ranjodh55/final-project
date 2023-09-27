@@ -1,0 +1,29 @@
+{% extends "base/base.html" %}
+
+{% block start %}
+
+<form method="post">
+    {% csrf_token %}
+
+
+    <div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
+        <div class="card-body">
+            <h4 class="card-title mb-4">Sign in</h4>
+            <form>
+                {% include "base/alert.html" %}
+                
+                <div class="form-group">
+                    <input name="password" class="form-control" required placeholder="Password" type="password">
+                </div> <!-- form-group// --><br>
+                <div class="form-group">
+                    <input name="confitm-pass" class="form-control" required placeholder="Confirm Password" type="password">
+                </div> <!-- form-group// --><br>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Reset</button>
+                </div> <!-- form-group// -->
+            </form>
+        </div> <!-- card-body.// -->
+    </div> <!-- card .// -->
+</form>
+
+{% endblock %}

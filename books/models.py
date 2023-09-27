@@ -24,6 +24,7 @@ class Book(BaseModel):
     genre = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available_quantity = models.IntegerField()
+    image =  models.ImageField(upload_to="images/books")
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)

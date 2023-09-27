@@ -14,7 +14,10 @@ class Profile(BaseModel):
         User, on_delete=models.CASCADE, related_name='profile')
     is_email_verified = models.BooleanField(default=False)
     email_token = models.CharField(max_length=100, null=True, blank=True)
+    forgot_token = models.CharField(max_length=100, null=True, blank=True)
 
+    def get_cart_count(self):
+        return CartItems.objects.filter(cart__is_paid = False, cart__user = self.user).count()
 
 class Cart(BaseModel):
     user = models.ForeignKey(
@@ -26,7 +29,7 @@ class Cart(BaseModel):
         sum = 0
         cart_items = self.cart_items.all()
         for item in cart_items:
-            sum += item.book.price
+            sum += item.get_item_total()
         return sum
 
 
@@ -35,6 +38,12 @@ class CartItems(BaseModel):
         Cart, on_delete=models.CASCADE, related_name='cart_items')
     book = models.ForeignKey(
         Book, on_delete=models.SET_NULL, null=True, blank=True)
+    quantity = models.IntegerField(default=1)
+
+
+    def get_item_total(self):
+        return self.book.price * self.quantity
+
 
 
 @receiver(post_save, sender=User)

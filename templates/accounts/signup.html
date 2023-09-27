@@ -10,14 +10,7 @@
         <div class="card-body">
             <h4 class="card-title mb-4">Sign in</h4>
             <form>
-                {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-danger {% if message.tags %}{{ message.tags }}{% endif %}" role="alert">
-                    {{message}}
-                </div>
-
-                {% endfor %}
-                {% endif %}
+                {% include "base/alert.html" %}
                 <div class="form-group">
                     <input name="email" class="form-control" placeholder="Email" type="email">
                 </div> <!-- form-group// --><br>
