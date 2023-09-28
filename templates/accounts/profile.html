@@ -8,39 +8,35 @@
 
     <div class="card mx-auto" style="max-width: 380px; margin-top:100px;">
         <div class="card-body">
-            <h4 class="card-title mb-4">Sign Up</h4>
+            <h4 class="card-title mb-4">Your Profile</h4>
             <form>
                 {% include "base/alert.html" %}
                 <div class="form-group">
-                    <input name="email" class="form-control" placeholder="Email" type="email">
+                    <input name="email" class="form-control" placeholder="Email" value="{{ request.user.email }}" type="email">
                 </div> <!-- form-group// --><br>
                 <div class="form-group">
-                    <input name="username" class="form-control" placeholder="Username" type="text">
+                    <input name="username" class="form-control" value="{{ request.user.username }}" placeholder="Username" type="text">
                 </div> <!-- form-group// --><br>
                 <div class="form-group">
-                    <input name="password" class="form-control" placeholder="Password" type="password">
+                    <input name="password" class="form-control" placeholder="New Password" type="password">
                 </div> <!-- form-group// --><br>
 
 
                 <div class="form-group">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="gridCheck" checked>
-                        <label class="form-check-label" for="gridCheck">
-                            Remember Me
-                        </label>
+                        
                         <a href="{% url 'forgot_password' %}" style="float: right; clear: right;">Forgot password?</a>
                     </div>                  
                     </label>
                 </div> <!-- form-group form-check .// --><br>
                 <div class="form-group" style="text-align: center;">
-                    <button type="submit" class="btn btn-dark mt-auto btn-block">Sign Up</button>
+                    <button type="submit" class="btn btn-dark mt-auto btn-block">Update</button>
                 </div> <!-- form-group// -->
             </form>
         </div> <!-- card-body.// -->
     </div> <!-- card .// -->
 
-    <p class="text-center mt-4">Already have account? <a href="/accounts/login">Login</a></p>
-    <br><br>
+   
 </form>
 
 {% endblock %}

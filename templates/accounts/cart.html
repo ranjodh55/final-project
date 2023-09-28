@@ -47,9 +47,8 @@
                                     </div> <!-- price-wrap .// -->
                                 </td>
                                 <td class="text-right">
-                                    <a data-original-title="Save to Wishlist" title="" href="" class="btn btn-light"
-                                        data-toggle="tooltip"> <i class="fa fa-heart"></i></a>
-                                    <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-light"> Remove</a>
+                                    
+                                    <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-outline-dark mt-auto"> Remove</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -76,14 +75,14 @@
                             <dd>Grand Total: <strong>${{cart.get_cart_total}}</strong></dd>
                         </dl>
                         <dl class="dlist-align">
-                            <button type="submit" class="btn btn-primary float-md-right"> Make Purchase <i
+                            <button type="submit" class="btn btn-dark mt-auto float-md-right"> Make Purchase <i
                                     class="fa fa-chevron-right"></i> </a>
                         </dl>
                         <hr>
                     </div> <!-- card-body.// -->
-                </div> <!-- card .// -->
+                </div> <!-- card .// --><br>
 
-                <a href="{% url 'remove_all_from_cart' cart.id %}" class="btn btn-outline-danger">Empty Cart</a>
+                <a href="{% url 'remove_all_from_cart' cart.id %}" class="btn btn-danger">Empty Cart</a>
             </aside> <!-- col.// -->
         </div>
 
