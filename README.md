@@ -58,13 +58,15 @@ python manage.py migrate
 6. Create a superuser account:
 python manage.py createsuperuser
 
+7. Add your email and password in project/settings.py file for the sending email functionality to work. You don't have to add your actual password there instaed add app password. You can get it from accounts.google.com > search 'App passwords' > create a new one. Make sure to remove all spaces from the password while pasting it in settings.py. It should be like this
+EMAIL_HOST_USER = 'your_email'
+EMAIL_HOST_PASSWORD = 'your_app_password'
+   
 
-7. Start the development server:
+9. Start the development server:
 python manage.py runserver
 
-
-
-8. Access the application in your web browser at `http://localhost:8000`.
+10. Access the application in your web browser.
 
 ## Technologies Used
 
