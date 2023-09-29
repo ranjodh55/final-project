@@ -5,4 +5,8 @@ from .models import Profile, Cart, CartItems
 
 admin.site.register(Profile)
 admin.site.register(Cart)
-admin.site.register(CartItems)
+
+@admin.register(CartItems)
+class CartItemsAdmin(admin.ModelAdmin):
+    list_display = CartItems.DisplayFields
+    search_fields = CartItems.SearchFields

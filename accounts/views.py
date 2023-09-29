@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from accounts.models import Cart, CartItems
 from books.models import Book
 from base.emails import send_forgot_password_email
-import re
+from base.utils import check_pass
 
 # Create your views here.
 
@@ -31,18 +31,26 @@ def login_user(request):
                     request, 'No account with this username found.')
                 return redirect('/accounts/login/')
 
-            if not user_username[0].profile.is_email_verified:
-                messages.warning(request, 'Email not verified!')
-                return redirect('/accounts/login/')
-
+            
             user = User.objects.get(username=username)
-            print(check_password(password, user.password))
-            print(user.password)
+            print(user.is_superuser)
             if check_password(password, user.password):
-                login(request, user)
-                request.session['user_id'] = user.id
-                request.session['user_email'] = user.email
-                return redirect('/')
+                if user.is_superuser:
+                    login(request, user)
+                    return redirect('/')
+                
+                if not user_username[0].profile.is_email_verified:
+                    messages.warning(request, 'Email not verified!')
+                    return redirect('/accounts/login/')
+                else:
+                    remember = request.POST.get('remember')
+                    if not remember:
+                        login(request, user)
+                        request.session.set_expiry(0)
+                        return redirect('/')
+                    else:
+                        login(request, user)
+                        return redirect('/')
             else:
                 messages.warning(request, 'Wrong credentials!')
                 return redirect('/accounts/login/')
@@ -52,34 +60,7 @@ def login_user(request):
             return redirect('/accounts/login/')
 
     return render(request, 'accounts/login.html')
-
-def check_pass(password):
-    flag = 0
-    while True:
-        if (len(password)<=8):
-            flag = -1
-            break
-        elif not re.search("[a-z]", password):
-            flag = -1
-            break
-        elif not re.search("[A-Z]", password):
-            flag = -1
-            break
-        elif not re.search("[0-9]", password):
-            flag = -1
-            break
-        elif not re.search("[_@$]" , password):
-            flag = -1
-            break
-        elif re.search("\s" , password):
-            flag = -1
-            break
-        else:
-            flag = 0
-            print("Valid Password")
-            break
-    return flag
-    
+   
 
 def signup(request):
     if request.method == 'POST':
@@ -287,9 +268,11 @@ def profile(request):
         password = data.get('password')
 
         if username or email or password:
-            if username != request.user.username and email != request.user.email:
-                user = User.objects.get(username= username)
-                if username:
+            username_ne = username != request.user.username
+            email_ne = email != request.user.email
+            if username_ne or email_ne or password:
+                user = User.objects.get(username= request.user.username)
+                if username_ne and username:
                     user.username = username
                 if password:
                     if check_pass(password) == 0:
@@ -298,6 +281,18 @@ def profile(request):
                     else:
                         messages.warning(request, 'Password must be at least 8 characters long, have at least one uppercase, one lowecase and one special character.')
                         return redirect('/accounts/profile/')  
+                if email and email_ne:
+                    print(email)
+                    user.email = email
+                    profile = Profile.objects.get(user=user)
+                    profile.is_email_verified = False
+                    profile.save()
+                    user.save()
+                    messages.warning(request, 'Email was changed, you need to verify your new email first.')
+                    logout(request)
+                    return redirect('/')
                 user.save()
+                print(user.email)
+
                 messages.success(request, 'Updated profile successfully.')
     return render(request, 'accounts/profile.html')

@@ -8,7 +8,8 @@ from django.utils.text import slugify
 class Genre(BaseModel):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, null=True, blank=True)
-
+    DisplayFields = ['name','slug']
+    SearchFields = ['name','slug']
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Genre, self).save(*args, **kwargs)
@@ -23,8 +24,10 @@ class Book(BaseModel):
     author = models.CharField(max_length=200)
     genre = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    available_quantity = models.IntegerField()
+    available_quantity = models.PositiveIntegerField()
     image =  models.ImageField(upload_to="images/books")
+    DisplayFields = ['title','author','genre','price','available_quantity','slug']
+    SearchFields = ['title','author','genre']
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)

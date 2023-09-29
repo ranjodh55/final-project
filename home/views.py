@@ -1,23 +1,27 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from books.models import Book, Genre
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib import messages
 
 # Create your views here.
 
 
 @login_required
 def index(request):
-    queryset = Book.objects.all()
-    search = request.GET.get('search')
-    if search:
-        queryset = queryset.filter(
-            Q(title__icontains=search) | Q(author__icontains=search) | Q(genre__icontains=search))
- 
-    queryset = paginate(request, queryset)
-    print(Genre.objects.all().distinct())
-    context = {'books': queryset, 'genres': Genre.objects.all().distinct()}
+    if request.user.profile.is_email_verified:
+        queryset = Book.objects.all()
+        search = request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) | Q(author__icontains=search) | Q(genre__icontains=search))
+    
+        queryset = paginate(request, queryset)
+        context = {'books': queryset, 'genres': Genre.objects.all().distinct()}
+    else:
+        messages.warning(request, 'Email not verified.')
+        return redirect('accounts/login/')
     return render(request, 'home/test.html', context)
 
 

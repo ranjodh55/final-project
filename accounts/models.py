@@ -39,7 +39,8 @@ class CartItems(BaseModel):
     book = models.ForeignKey(
         Book, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.IntegerField(default=1)
-
+    DisplayFields = ['cart','book','quantity']
+    SearchFields = ['cart','book','quantity']
 
     def get_item_total(self):
         return self.book.price * self.quantity

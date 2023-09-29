@@ -12,22 +12,18 @@
             <form>
                 {% include "base/alert.html" %}
                 <div class="form-group">
-                    <input name="email" class="form-control" placeholder="Email" type="email">
+                    <input name="email" class="form-control" required placeholder="Email" type="email">
                 </div> <!-- form-group// --><br>
                 <div class="form-group">
-                    <input name="username" class="form-control" placeholder="Username" type="text">
+                    <input name="username" class="form-control" required placeholder="Username" type="text">
                 </div> <!-- form-group// --><br>
                 <div class="form-group">
-                    <input name="password" class="form-control" placeholder="Password" type="password">
+                    <input name="password" class="form-control" required placeholder="Password" type="password">
                 </div> <!-- form-group// --><br>
 
 
                 <div class="form-group">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="gridCheck" checked>
-                        <label class="form-check-label" for="gridCheck">
-                            Remember Me
-                        </label>
                         <a href="{% url 'forgot_password' %}" style="float: right; clear: right;">Forgot password?</a>
                     </div>                  
                     </label>
