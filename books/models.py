@@ -21,7 +21,7 @@ class Book(BaseModel):
     slug = models.SlugField(unique=True, null=True, blank=True)
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=200)
-    genre = models.CharField(max_length=100)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='genre')
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available_quantity = models.IntegerField()
     image =  models.ImageField(upload_to="images/books")

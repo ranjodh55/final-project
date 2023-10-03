@@ -39,7 +39,7 @@ def sort_by(request, value):
 
 def paginate(request, queryset):
     page = request.GET.get('page', 1)
-    paginator = Paginator(queryset, 12)
+    paginator = Paginator(queryset, 8)
     try:
         queryset = paginator.get_page(page)
     except PageNotAnInteger:

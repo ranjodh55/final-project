@@ -38,7 +38,7 @@ class CartItems(BaseModel):
         Cart, on_delete=models.CASCADE, related_name='cart_items')
     book = models.ForeignKey(
         Book, on_delete=models.SET_NULL, null=True, blank=True)
-    quantity = models.IntegerField(default=1)
+    quantity = models.PositiveIntegerField(default=1)
 
 
     def get_item_total(self):

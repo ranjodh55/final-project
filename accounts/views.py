@@ -18,6 +18,7 @@ import re
 
 
 def login_user(request):
+
     if request.method == 'POST':
         data = request.POST
         username = data.get('username')
@@ -29,27 +30,26 @@ def login_user(request):
             if not user_username.exists():
                 messages.warning(
                     request, 'No account with this username found.')
-                return redirect('/accounts/login/')
+                return render(request, 'accounts/login.html', context={'username':username, 'password': password})
+
 
             if not user_username[0].profile.is_email_verified:
                 messages.warning(request, 'Email not verified!')
-                return redirect('/accounts/login/')
+                return render(request, 'accounts/login.html', context={'username':username, 'password': password})
+
 
             user = User.objects.get(username=username)
-            print(check_password(password, user.password))
-            print(user.password)
             if check_password(password, user.password):
                 login(request, user)
-                request.session['user_id'] = user.id
-                request.session['user_email'] = user.email
                 return redirect('/')
             else:
                 messages.warning(request, 'Wrong credentials!')
-                return redirect('/accounts/login/')
+                return render(request, 'accounts/login.html', context={'username':username, 'password': password})
+
 
         else:
             messages.warning(request, 'Please fill all fields.')
-            return redirect('/accounts/login/')
+            return render(request, 'accounts/login.html', context={'username':username, 'password': password})
 
     return render(request, 'accounts/login.html')
 
@@ -88,6 +88,7 @@ def signup(request):
         email = data.get('email')
         password = data.get('password')
 
+        context = {'email':email, 'username':username, 'password':password}
         if check_pass(password) == 0:
             if email and username and password:
 
@@ -97,7 +98,7 @@ def signup(request):
                 if user_email.exists() or user_username.exists():
                     messages.warning(
                         request, 'Username or email already exists')
-                    return redirect('/accounts/signup/')
+                    return render(request, 'accounts/signup.html', context=context)
 
                 hashed_pass = make_password(password)
                 user = User.objects.create(
@@ -109,14 +110,14 @@ def signup(request):
                 user.save()
                 messages.success(
                     request, 'An email has been sent to your mail.')
-                return redirect('/accounts/signup/')
+                return render(request, 'accounts/signup.html', context=context)
             else:
                 messages.warning(request, 'Please fill all fields.')
-                return redirect('/accounts/signup/')
+                return render(request, 'accounts/signup.html', context=context)
         else:
             messages.warning(
                 request, 'Password must be at least 8 characters long, have at least one uppercase, one lowecase and one special character')
-            return redirect('/accounts/signup/')
+            return render(request, 'accounts/signup.html', context=context)
     return render(request, 'accounts/signup.html')
 
 
@@ -141,22 +142,28 @@ def logout_user(request):
 def add_to_cart(request, id):
     book = Book.objects.get(id=id)
     user = request.user
-    cart, _ = Cart.objects.get_or_create(user=user, is_paid=False)
 
     if request.method == 'POST':
-        print('post')
-        quantity = int(request.POST.get('quantity'))
-        available = book.available_quantity
-        if available >= quantity:
-            print(available)
-            print('quantity',quantity)
-            cart_item = CartItems.objects.create(cart=cart, book=book)
-            cart_item.quantity = quantity
-            cart_item.save()
-            return redirect('/accounts/cart/')
+        quantity = request.POST.get('quantity')
+        if quantity:
+            quantity = int(quantity)
+            available = book.available_quantity
+            if available >= quantity:
+                cart, _ = Cart.objects.get_or_create(user=user, is_paid=False)
+                cart_item, created = CartItems.objects.get_or_create(cart=cart, book=book)
+                if created:
+                    cart_item.quantity = quantity
+                else:
+                    cart_item.quantity += quantity
+                cart_item.save()
+                return redirect('/accounts/cart/')
+            else:
+                messages.warning(
+                    request, 'You order quantity exceeds the available book quantity.')
+                return redirect(f'/books/{book.slug}')
         else:
             messages.warning(
-                request, 'You order quantity exceeds the available book quantity.')
+                    request, 'Please enter a valid book quantity.')
             return redirect(f'/books/{book.slug}')
 
     return redirect('/accounts/cart/')
@@ -186,32 +193,34 @@ def remove_from_cart(request, cart_item_id):
 def remove_all_from_cart(request, cart_id):
     try:
         cart = Cart.objects.get(id=cart_id)
-        print(cart)
-        cart.cart_items.all().delete()
+        cart.delete()
         return redirect('/accounts/empty-cart/')
     except Exception as e:
         return redirect('/accounts/cart/')
 
 
 def forgot_password(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        user = User.objects.get(email=email)
+    email = ''
+    try:
+        if request.method == 'POST':
+            email = request.POST.get('email')
+            user = User.objects.get(email=email)
 
-        if user:
             forgot_token = str(uuid.uuid4())
             send_forgot_password_email(email, forgot_token)
             profile = Profile.objects.get(user=user)
             profile.forgot_token = forgot_token
             profile.save()
             messages.success(
-                request, 'A link to reset your password was sent to your email address.')
-            return redirect('/accounts/forgot')
+                    request, 'A link to reset your password was sent to your email address.')
+            context = {'email':email}
+        return render(request, 'accounts/forgot.html',context)
 
-        else:
-            messages.warning('No user exists with this email address.')
-            return redirect('/accounts/forgot')
-    return render(request, 'accounts/forgot.html')
+    except Exception as e:
+        messages.warning(request,'No user exists with this email address.')
+        context = {'email':email}
+
+        return render(request, 'accounts/forgot.html',context)
 
 
 def reset_pass(request, forgot_token):
@@ -242,8 +251,9 @@ def order(request, cart_id):
     try:
         cart = Cart.objects.get(id=cart_id)
         if request.method == 'POST':
-            order = int(request.POST.get('quantity'))
+            
             for cart_item in cart.cart_items.all():
+                order = int(request.POST.get('quantity'))
                 available = cart_item.book.available_quantity
                 # order = cart_item.quantity
                 if available >= order:
@@ -256,7 +266,8 @@ def order(request, cart_id):
                 else:
                     messages.warning(
                         request, 'You order quantity exceeds the available book quantity.')
-                    return redirect('/accounts/cart/')
+                    context =  {'quantity':order}
+                    return redirect('/accounts/cart/', context)
     except Exception as e:
         messages.warning(request, 'No Items in your cart.')
         print(e)
@@ -270,15 +281,6 @@ def cart_is_empty(request):
 
 
 @login_required
-def decrease(request, quantity):
-    try:
-        if quantity > 1:
-            return quantity-1
-    except Exception as e:
-        return HttpResponse(e)
-
-
-@login_required
 def profile(request):
     if request.method == 'POST':
         data = request.POST
@@ -287,9 +289,11 @@ def profile(request):
         password = data.get('password')
 
         if username or email or password:
-            if username != request.user.username and email != request.user.email:
-                user = User.objects.get(username= username)
-                if username:
+            username_ne = username != request.user.username
+            email_ne = email != request.user.email
+            if username_ne or email_ne or password:
+                user = User.objects.get(username= request.user.username)
+                if username_ne and username:
                     user.username = username
                 if password:
                     if check_pass(password) == 0:
@@ -298,6 +302,18 @@ def profile(request):
                     else:
                         messages.warning(request, 'Password must be at least 8 characters long, have at least one uppercase, one lowecase and one special character.')
                         return redirect('/accounts/profile/')  
+                if email and email_ne:
+                    print(email)
+                    user.email = email
+                    profile = Profile.objects.get(user=user)
+                    profile.is_email_verified = False
+                    profile.save()
+                    user.save()
+                    messages.warning(request, 'Email was changed, you need to verify your new email first.')
+                    logout(request)
+                    return redirect('/')
                 user.save()
+                print(user.email)
                 messages.success(request, 'Updated profile successfully.')
+                return redirect('/accounts/profile/')  
     return render(request, 'accounts/profile.html')

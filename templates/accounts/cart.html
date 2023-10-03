@@ -38,7 +38,7 @@
                                     </div> <!-- price-wrap .// -->
                                 </td>
                                 <td>
-                                    <input name="quantity" type="text" class="form-control" value="{{ item.quantity }}">
+                                    <input name="quantity" min="1" max="{{item.book.available_quantity}}" type="number" class="form-control" value="{{ item.quantity }}">
                                 </td>
                                 <td>
                                     <div class="price-wrap">
