@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from accounts.models import Cart, CartItems
 from books.models import Book
 from base.emails import send_forgot_password_email
-import re
+from base.utils import check_pass
 
 # Create your views here.
 
@@ -33,6 +33,7 @@ def login_user(request):
                 return render(request, 'accounts/login.html', context={'username':username, 'password': password})
 
 
+<<<<<<< HEAD
             if not user_username[0].profile.is_email_verified:
                 messages.warning(request, 'Email not verified!')
                 return render(request, 'accounts/login.html', context={'username':username, 'password': password})
@@ -42,6 +43,28 @@ def login_user(request):
             if check_password(password, user.password):
                 login(request, user)
                 return redirect('/')
+=======
+            
+            user = User.objects.get(username=username)
+            print(user.is_superuser)
+            if check_password(password, user.password):
+                if user.is_superuser:
+                    login(request, user)
+                    return redirect('/')
+                
+                if not user_username[0].profile.is_email_verified:
+                    messages.warning(request, 'Email not verified!')
+                    return redirect('/accounts/login/')
+                else:
+                    remember = request.POST.get('remember')
+                    if not remember:
+                        login(request, user)
+                        request.session.set_expiry(0)
+                        return redirect('/')
+                    else:
+                        login(request, user)
+                        return redirect('/')
+>>>>>>> 60a5ee989bc99803ce5e170d069bbaf7c4aa6c1a
             else:
                 messages.warning(request, 'Wrong credentials!')
                 return render(request, 'accounts/login.html', context={'username':username, 'password': password})
@@ -52,34 +75,7 @@ def login_user(request):
             return render(request, 'accounts/login.html', context={'username':username, 'password': password})
 
     return render(request, 'accounts/login.html')
-
-def check_pass(password):
-    flag = 0
-    while True:
-        if (len(password)<=8):
-            flag = -1
-            break
-        elif not re.search("[a-z]", password):
-            flag = -1
-            break
-        elif not re.search("[A-Z]", password):
-            flag = -1
-            break
-        elif not re.search("[0-9]", password):
-            flag = -1
-            break
-        elif not re.search("[_@$]" , password):
-            flag = -1
-            break
-        elif re.search("\s" , password):
-            flag = -1
-            break
-        else:
-            flag = 0
-            print("Valid Password")
-            break
-    return flag
-    
+   
 
 def signup(request):
     if request.method == 'POST':
@@ -332,6 +328,10 @@ def profile(request):
                     return redirect('/')
                 user.save()
                 print(user.email)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 60a5ee989bc99803ce5e170d069bbaf7c4aa6c1a
                 messages.success(request, 'Updated profile successfully.')
                 return redirect('/accounts/profile/')  
     return render(request, 'accounts/profile.html')

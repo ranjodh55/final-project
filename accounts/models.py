@@ -38,8 +38,14 @@ class CartItems(BaseModel):
         Cart, on_delete=models.CASCADE, related_name='cart_items')
     book = models.ForeignKey(
         Book, on_delete=models.SET_NULL, null=True, blank=True)
+<<<<<<< HEAD
     quantity = models.PositiveIntegerField(default=1)
 
+=======
+    quantity = models.IntegerField(default=1)
+    DisplayFields = ['cart','book','quantity']
+    SearchFields = ['cart','book','quantity']
+>>>>>>> 60a5ee989bc99803ce5e170d069bbaf7c4aa6c1a
 
     def get_item_total(self):
         return self.book.price * self.quantity

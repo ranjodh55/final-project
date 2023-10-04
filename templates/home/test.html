@@ -73,7 +73,7 @@
                 </div>
                 {% endif %}
                 <!-- Product image-->
-                <img class="card-img-top" src="/media/{{ book.image }}" alt="..." />
+                <img style="height: 20vw;" class="card-img-top" src="/media/{{ book.image }}" alt="..." />
                 <!-- Product details-->
                 <div class="card-body p-4">
                     <div class="text-center">
@@ -109,6 +109,7 @@
             </a>      
           </li>
           {% endif %}
+<<<<<<< HEAD
           {% for i in books.paginator.page_range %}
           {% if i == books.number %}
           <li class="page-item active"><a class="page-link" href="?page={{i}}">{{ i }}</a></li>
@@ -117,6 +118,11 @@
 
           {% endif %}
             {% endfor %}
+=======
+          <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+            <li class="page-item"><a class="page-link" href="?page=2">2</a></li>
+            <li class="page-item"><a class="page-link" href="?page=3">3</a></li>  
+>>>>>>> 60a5ee989bc99803ce5e170d069bbaf7c4aa6c1a
           {% if books.has_next %}
       <li class="page-item">
         <a class="page-link" href="?page={{ books.next_page_number }}" aria-label="Next">
