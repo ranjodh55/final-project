@@ -176,6 +176,7 @@ def cart(request):
         context = {'cart': cart}
         return render(request, 'accounts/cart.html', context)
     except Exception as e:
+        print(e)
         return redirect('/accounts/empty-cart/')
 
 
@@ -245,34 +246,51 @@ def reset_pass(request, forgot_token):
     except Exception as e:
         return HttpResponse('Invalid Token')
 
+@login_required
+def place_order(request):
+    try:
+        if request.method == 'POST':
+            
+            for key, value in request.POST.items():
+                if key.startswith('quantity_'):
+                    cart_item_id = key.split('_')[1]  # Extract the cart item ID from the field name
+                    quantity = value
+
+                    # Retrieve the cart item
+                    cart_item = CartItems.objects.get(id=cart_item_id)
+
+                    # Update the cart item's quantity
+                    cart_item.quantity = quantity
+                    cart_item.save()
+            cart_id = request.POST.get('cart_id')
+            cart = Cart.objects.get(id = cart_id)
+            context = {'cart':cart}
+            return render(request,'accounts/order.html',context)
+    except Exception as e:
+            print(e)
+            return redirect('/accounts/cart/')
+
+
+# def order(request):
+#     return render(request, 'accounts/')
 
 @login_required
 def order(request, cart_id):
     try:
         cart = Cart.objects.get(id=cart_id)
         if request.method == 'POST':
-            
             for cart_item in cart.cart_items.all():
-                order = int(request.POST.get('quantity'))
-                available = cart_item.book.available_quantity
-                # order = cart_item.quantity
-                if available >= order:
-                    cart_item.book.available_quantity -= order
-                    cart_item.book.save()
-                    cart.is_paid = True
-                    cart.save()
-                    messages.success(request, 'Order placed sucessfully.')
-                    return redirect('/accounts/empty-cart/')
-                else:
-                    messages.warning(
-                        request, 'You order quantity exceeds the available book quantity.')
-                    context =  {'quantity':order}
-                    return redirect('/accounts/cart/', context)
+                cart_item.book.available_quantity -= cart_item.quantity
+                cart_item.book.save()
+            cart.is_paid = True
+            cart.save()
+            messages.success(request, 'Order placed sucessfully.')
+            return redirect('/accounts/empty-cart/')
     except Exception as e:
         messages.warning(request, 'No Items in your cart.')
         print(e)
-        return redirect('/accounts/cart/')
-    return render('accounts/cart.html')
+        return redirect('/accounts/place_order/')
+    
 
 
 @login_required
